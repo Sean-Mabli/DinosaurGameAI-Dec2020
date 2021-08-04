@@ -1,6 +1,8 @@
 import pygame
 import numpy as np
-import time
+from NEAT import NEAT
+
+
 
 pygame.init()
 pygame.display.set_caption('Dinosaur Game')
@@ -33,12 +35,11 @@ DinoType = 'Walk'
 
 WHITE = (255, 255, 255)
 GRAY = (83, 83, 83)
-for _ in range(20):
-  while Alive:
+for Generation in range(100):
+  while np.sum(DinoAlive) != 0:
     Display.fill(WHITE)
     Display.blit(pygame.font.SysFont("Raleway", 40).render("Score: " + str(Score), 1, GRAY), (750, 10))
     Display.blit(pygame.font.SysFont("Raleway", 40).render("High Score: " + str(HighScore), 1, GRAY), (750, 40))
-    time.sleep(0.01)
 
     # Road
     pygame.draw.line(Display, GRAY, (0, ScreenShape[1] - 20), (ScreenShape[0], ScreenShape[1] - 20))
@@ -96,11 +97,9 @@ for _ in range(20):
       if Dino[0] < Object[0, i] + ObjectShape[0] and Dino[0] + DinoShape[0] > Object[0, i] and Dino[1] < Object[1, i] + ObjectShape[1] and Dino[1] + DinoShape[1] > Object[1, i]:
         Alive = False
         HighScore = max(HighScore, Score)
-        time.sleep(1)
     if Dino[1] == 0:
       Alive = False
       HighScore = max(HighScore, Score)
-      time.sleep(1)
 
     pygame.display.update()
 

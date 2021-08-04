@@ -1,16 +1,21 @@
 import numpy as np
-from ActivationFunctions import ForwardProp, BackProp
+
+def Sigmoid(Input):
+    return 1 / (1 + np.exp(-Input))
 
 class NEAT:
   def __init__(self, InSize, OutSize, MutationRate, PopulationSize):
-    self.Weights = np.random.uniform(-1, 1, (PopulationSize, InSize, OutSize))
-    self.Biases = np.random.uniform(0, 0, (PopulationSize, OutSize))
+    self.Weights = np.random.uniform(-1, 1, (PopulationSize, InSize, OutSize, ))
+    # self.Biases = np.random.uniform(0, 0, (PopulationSize, OutSize))
     self.MutationRate, self.PopulationSize = MutationRate, PopulationSize
     
   def ForwardProp(self, In):
     self.In = np.array([In] * self.PopulationSize)
-    self.Out = np.transpose(self.Weights) @ self.In + self.Biases
-    return self.Out
+    print(self.In.shape)
+    print(self.Weights.shape)
+    self.Out = np.transpose(self.Weights, axes=0) @ self.In # + self.Biases
+    print(self.Out.shape)
+    return Sigmoid(self.Out)
 
   def Mutate(self, FavorableWeights, FavorableBiases):
     # Copy Weights and Biases
