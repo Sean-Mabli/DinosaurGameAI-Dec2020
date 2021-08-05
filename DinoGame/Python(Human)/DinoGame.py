@@ -33,6 +33,7 @@ DinoType = 'Walk'
 
 WHITE = (255, 255, 255)
 GRAY = (83, 83, 83)
+
 for _ in range(20):
   while Alive:
     Display.fill(WHITE)
@@ -59,17 +60,20 @@ for _ in range(20):
 
       Object[0, i] -= Speed
 
-      if Object[0, i] <= -ObjectShape[0]:
-        Score += 1
-        Object[0, i] = np.random.randint(1000, 1400)
-        while abs(Object[0, 0] - Object[0, 1]) < 400 or abs(Object[0, 1] - Object[0, 2]) < 400 or abs(Object[0, 0] - Object[0, 2]) < 400:
-          Object[0, i] = np.random.randint(1000, 1400)
-        if np.random.random_sample() <= 0.2:
-          Object[1, i] = ScreenShape[1] - (ObjectShape[1] + DinoShape[1]) - np.random.randint(0, 10)
-          ObjectType[i] = 'Bird'
-        else:
-          Object[1, i] = ScreenShape[1] - ObjectShape[1] - np.random.randint(0, 20)
-          ObjectType[i] = 'Cactus'
+    if Object[0, 0] <= -ObjectShape[0]:
+      Score += 1
+      Object[:, 0], ObjectType[0] = Object[:, 1], ObjectType[1]
+      Object[:, 1], ObjectType[1] = Object[:, 2], ObjectType[2]
+      
+      Object[0, 2] = np.random.randint(1000, 1400)
+      while abs(Object[0, 0] - Object[0, 1]) < 400 or abs(Object[0, 1] - Object[0, 2]) < 400 or abs(Object[0, 0] - Object[0, 2]) < 400:
+        Object[0, 2] = np.random.randint(1000, 1400)
+      if np.random.random_sample() <= 0.2:
+        Object[1, 2] = ScreenShape[1] - (ObjectShape[1] + DinoShape[1]) + np.random.randint(0, 10)
+        ObjectType[i] = 'Bird'
+      else:
+        Object[1, 2] = ScreenShape[1] - ObjectShape[1] - np.random.randint(0, 20)
+        ObjectType[i] = 'Cactus'
 
     # Dino
     for event in pygame.event.get():
@@ -96,11 +100,9 @@ for _ in range(20):
       if Dino[0] < Object[0, i] + ObjectShape[0] and Dino[0] + DinoShape[0] > Object[0, i] and Dino[1] < Object[1, i] + ObjectShape[1] and Dino[1] + DinoShape[1] > Object[1, i]:
         Alive = False
         HighScore = max(HighScore, Score)
-        time.sleep(1)
     if Dino[1] == 0:
       Alive = False
       HighScore = max(HighScore, Score)
-      time.sleep(1)
 
     pygame.display.update()
 
@@ -108,11 +110,9 @@ for _ in range(20):
   Score = 0
   Alive = True
 
-  Road = np.stack((np.random.randint(0, ScreenShape[0], 100), np.random.randint(ScreenShape[1] - 20, ScreenShape[0], 100)))
-
-  ObjectShape = (73, 47)
-  Object = np.array([[1000, 1400, 1800], [ScreenShape[1] - ObjectShape[1] - np.random.randint(0, 20), ScreenShape[1] - ObjectShape[1] - np.random.randint(0, 20), ScreenShape[1] - ObjectShape[1] - np.random.randint(0, 20)]])
-  ObjectType = np.array(['Cactus', 'Cactus', 'Cactus'])
+  Object[0, 0] += 1000
+  Object[0, 1] += 1000
+  Object[0, 2] += 1000
 
   DinoShape = (40, 43)
   Dino = np.array([20, ScreenShape[1] - DinoShape[1]])
