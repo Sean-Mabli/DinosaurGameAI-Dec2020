@@ -2,54 +2,56 @@ import pygame
 import numpy as np
 from NEAT import NEAT
 
-
+InToHid1 = NEAT(4, 6, MutationRate=0.1, PopulationSize=1000)
+Hid1ToOut = NEAT(6, 3, MutationRate=0.1, PopulationSize=1000)
 
 pygame.init()
 pygame.display.set_caption('Dinosaur Game')
 
-ScreenShape = (960, 540)
-Display = pygame.display.set_mode([ScreenShape[0], ScreenShape[1]])
+DisplayShape = (960, 540)
+Display = pygame.display.set_mode([DisplayShape[0], DisplayShape[1]])
 
 Bird = pygame.image.load('DinoGame\Python(Human)\data\Bird002.png')
 Cactus = pygame.image.load('DinoGame\Python(Human)\data\Cactus001.png')
 DinoDuck = pygame.image.load('DinoGame\Python(Human)\data\DinoDuck004.png')
 DinoWalk = pygame.image.load('DinoGame\Python(Human)\data\DinoWalk002.png')
 
-Alive = True
+Alive = np.array([True] * PopulationSize, dtype=bool)
 HighScore = 0
-Score = 0
+Score = np.array([0] * PopulationSize)
 
 Gravity = 0.5
-Speed = 8 # Pixels per loop
 Velocity = 0
+Speed = 8 # Pixels per loop
 
-Road = np.stack((np.random.randint(0, ScreenShape[0], 100), np.random.randint(ScreenShape[1] - 20, ScreenShape[0], 100)))
+Road = np.stack((np.random.randint(0, DisplayShape[0], 100), np.random.randint(DisplayShape[1] - 20, DisplayShape[0], 100)))
 
 ObjectShape = (73, 47)
-Object = np.array([[1000, 1400, 1800], [ScreenShape[1] - ObjectShape[1] - np.random.randint(0, 20), ScreenShape[1] - ObjectShape[1] - np.random.randint(0, 20), ScreenShape[1] - ObjectShape[1] - np.random.randint(0, 20)]])
+Object = np.array([[1000, 1400, 1800], [DisplayShape[1] - ObjectShape[1] - np.random.randint(0, 20), DisplayShape[1] - ObjectShape[1] - np.random.randint(0, 20), DisplayShape[1] - ObjectShape[1] - np.random.randint(0, 20)]])
 ObjectType = np.array(['Cactus', 'Cactus', 'Cactus'])
 
 DinoShape = (40, 43)
-Dino = np.array([20, ScreenShape[1] - DinoShape[1]])
+Dino = np.array([20, DisplayShape[1] - DinoShape[1]])
 DinoType = 'Walk'
 
 WHITE = (255, 255, 255)
 GRAY = (83, 83, 83)
+
 for Generation in range(100):
-  while np.sum(DinoAlive) != 0:
+  while np.sum(Alive) != 0:
     Display.fill(WHITE)
     Display.blit(pygame.font.SysFont("Raleway", 40).render("Score: " + str(Score), 1, GRAY), (750, 10))
     Display.blit(pygame.font.SysFont("Raleway", 40).render("High Score: " + str(HighScore), 1, GRAY), (750, 40))
 
     # Road
-    pygame.draw.line(Display, GRAY, (0, ScreenShape[1] - 20), (ScreenShape[0], ScreenShape[1] - 20))
+    pygame.draw.line(Display, GRAY, (0, DisplayShape[1] - 20), (DisplayShape[0], DisplayShape[1] - 20))
     for i in range(100):
       pygame.draw.rect(Display, GRAY,(Road[0, i], Road[1, i], 2, 2))
       Road[0, i] -= Speed
 
       if Road[0, i] <= 0:
-        Road[0, i] = ScreenShape[0]
-        Road[1, i] = np.random.randint(ScreenShape[1] - 20, ScreenShape[1])
+        Road[0, i] = DisplayShape[0]
+        Road[1, i] = np.random.randint(DisplayShape[1] - 20, DisplayShape[1])
 
     # Object
     for i in range(len(Object[0])):
@@ -66,26 +68,26 @@ for Generation in range(100):
         while abs(Object[0, 0] - Object[0, 1]) < 400 or abs(Object[0, 1] - Object[0, 2]) < 400 or abs(Object[0, 0] - Object[0, 2]) < 400:
           Object[0, i] = np.random.randint(1000, 1400)
         if np.random.random_sample() <= 0.2:
-          Object[1, i] = ScreenShape[1] - (ObjectShape[1] + DinoShape[1]) - np.random.randint(0, 10)
+          Object[1, i] = DisplayShape[1] - (ObjectShape[1] + DinoShape[1]) - np.random.randint(0, 10)
           ObjectType[i] = 'Bird'
         else:
-          Object[1, i] = ScreenShape[1] - ObjectShape[1] - np.random.randint(0, 20)
+          Object[1, i] = DisplayShape[1] - ObjectShape[1] - np.random.randint(0, 20)
           ObjectType[i] = 'Cactus'
 
     # Dino
     for event in pygame.event.get():
       if event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_UP and Dino[1] == ScreenShape[1] - DinoShape[1]:
+        if event.key == pygame.K_UP and Dino[1] == DisplayShape[1] - DinoShape[1]:
           Velocity = - 10
           DinoShape = (40, 43)
           DinoType = 'Walk'
-        if event.key == pygame.K_DOWN and Dino[1] == ScreenShape[1] - DinoShape[1]:
+        if event.key == pygame.K_DOWN and Dino[1] == DisplayShape[1] - DinoShape[1]:
           DinoShape = (55, 26)
           DinoType = 'Duck'
 
     Dino[1] += Velocity
     Velocity += Gravity
-    Dino[1] = min(ScreenShape[1] - DinoShape[1], max(0, Dino[1]))
+    Dino[1] = min(DisplayShape[1] - DinoShape[1], max(0, Dino[1]))
 
     if DinoType == 'Walk':
       Display.blit(DinoWalk, (Dino[0], Dino[1]))
@@ -104,17 +106,16 @@ for Generation in range(100):
     pygame.display.update()
 
   # Reset
-  Score = 0
-  Alive = True
+  Score = np.array([0] * PopulationSize)
+  Alive = np.array([True] * PopulationSize, dtype=bool)
 
-  Road = np.stack((np.random.randint(0, ScreenShape[0], 100), np.random.randint(ScreenShape[1] - 20, ScreenShape[0], 100)))
-
+  # Can simiplify the following code by just reseting the object that the dino colided with
   ObjectShape = (73, 47)
-  Object = np.array([[1000, 1400, 1800], [ScreenShape[1] - ObjectShape[1] - np.random.randint(0, 20), ScreenShape[1] - ObjectShape[1] - np.random.randint(0, 20), ScreenShape[1] - ObjectShape[1] - np.random.randint(0, 20)]])
+  Object = np.array([[1000, 1400, 1800], [DisplayShape[1] - ObjectShape[1] - np.random.randint(0, 20), DisplayShape[1] - ObjectShape[1] - np.random.randint(0, 20), DisplayShape[1] - ObjectShape[1] - np.random.randint(0, 20)]])
   ObjectType = np.array(['Cactus', 'Cactus', 'Cactus'])
 
   DinoShape = (40, 43)
-  Dino = np.array([20, ScreenShape[1] - DinoShape[1]])
+  Dino = np.array([20, DisplayShape[1] - DinoShape[1]])
   DinoType = 'Walk'
 
 pygame.quit()
