@@ -18,7 +18,7 @@ DinoWalk = pygame.image.load('DinoGame/Python_Ai/data/DinoWalk002.png')
 
 Alive = np.array([True] * 1000, dtype=bool)
 HighScore = 0
-Score = np.array([0] * 1000)
+Score = 0 # np.array([0] * 1000)
 
 Gravity = 0.5
 Velocity = 0
@@ -38,12 +38,13 @@ DinoType = 'Walk'
 
 WHITE = (255, 255, 255)
 GRAY = (83, 83, 83)
+Font = pygame.font.Font('freesansbold.ttf', 20)
 
 for Generation in range(20):
   while np.sum(Alive) != 0:
     Display.fill(WHITE)
-    # Display.blit(pygame.font.SysFont("Raleway", 40).render("Score: " + str(Score), 1, GRAY), (750, 10))
-    # Display.blit(pygame.font.SysFont("Raleway", 40).render("High Score: " + str(HighScore), 1, GRAY), (750, 40))
+    Display.blit(Font.render("Score: " + str(Score), True, GRAY), (10, 10))
+    Display.blit(Font.render("High Score: " + str(HighScore), True, GRAY), (10, 35))
 
     # Road
     pygame.draw.line(Display, GRAY, (0, DisplayShape[1] - 20), (DisplayShape[0], DisplayShape[1] - 20))
@@ -80,6 +81,10 @@ for Generation in range(20):
         ObjectType[i] = 'Cactus'
 
     # Dino
+    # In = np.array([Object[0, 0] - , 0, 0, 0])
+    # Hid1 = InToHid1.ForwardProp(In)
+    # Out = Hid1ToOut.ForwardProp(Hid1)
+
     for event in pygame.event.get():
       if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_UP and Dino[1] == DisplayShape[1] - DinoShape[1]:
@@ -103,10 +108,10 @@ for Generation in range(20):
     for i in range(len(Object[0])):
       if Dino[0] < Object[0, i] + ObjectShape[0] and Dino[0] + DinoShape[0] > Object[0, i] and Dino[1] < Object[1, i] + ObjectShape[1] and Dino[1] + DinoShape[1] > Object[1, i]:
         Alive = False
-        # HighScore = max(HighScore, Score)
+        HighScore = max(HighScore, Score)
     if Dino[1] == 0:
       Alive = False
-      # HighScore = max(HighScore, Score)
+      HighScore = max(HighScore, Score)
 
     pygame.display.update()
 
