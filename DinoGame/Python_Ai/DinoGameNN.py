@@ -1,1 +1,0 @@
-DinoShape = np.array([60, 40] * PopulationSize)

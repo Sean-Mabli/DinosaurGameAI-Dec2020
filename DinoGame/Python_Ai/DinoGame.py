@@ -47,7 +47,10 @@ for Generation in range(20):
     Display.fill(WHITE)
     Display.blit(Font.render("Score: " + str(max(Score)), True, GRAY), (10, 10))
     Display.blit(Font.render("High Score: " + str(HighScore), True, GRAY), (10, 35))
+    Display.blit(Font.render("Generation: " + str(Generation), True, GRAY), (10, 60))
 
+
+    '''
     # Road
     pygame.draw.line(Display, GRAY, (0, DisplayShape[1] - 20), (DisplayShape[0], DisplayShape[1] - 20))
     for i in range(100):
@@ -57,6 +60,7 @@ for Generation in range(20):
       if Road[0, i] <= 0:
         Road[0, i] = DisplayShape[0]
         Road[1, i] = np.random.randint(DisplayShape[1] - 20, DisplayShape[1])
+    '''
 
     # Object
     # Display Object And Update Position
@@ -70,7 +74,10 @@ for Generation in range(20):
 
     # Check Object Location And Posiblity Reset
     if Object[0, 0] <= -ObjectShape[0]:
-      Score += 1
+
+      if Alive[i] == True:
+        Score[i] += 1
+        
       Object[:, 0], ObjectType[0] = Object[:, 1], ObjectType[1]
       Object[:, 1], ObjectType[1] = Object[:, 2], ObjectType[2]
       
@@ -85,14 +92,11 @@ for Generation in range(20):
         ObjectType[i] = 'Cactus'
 
     # Dino
-    In = np.array([Object[0, 0] - (20 + DinoWalkShape[0]), 0, Object[0, 1] - (20 + DinoWalkShape[0]), 0])
-    In[1] = 0 if ObjectType[0] == 'Cactus' else 1
-    In[3] = 0 if ObjectType[1] == 'Cactus' else 1
+    In = np.array([(Object[0, 0] - (20 + DinoWalkShape[0])) / 1400, 0 if ObjectType[0] == 'Cactus' else 1, (Object[0, 1] - (20 + DinoWalkShape[0])) / 1400, 0 if ObjectType[1] == 'Cactus' else 1])
     In = np.array([In] * PopulationSize)
     Hid1 = InToHid1.ForwardProp(In)
-    # Out = Hid1ToOut.ForwardProp(Hid1)
-    print(Hid1.shape)
-    sys.exit()
+    Out = Hid1ToOut.ForwardProp(Hid1)
+
     for i in range(PopulationSize):
       if Out[i, 1] > Out[i, 0] and Out[i, 1] > Out[i, 2] and Dino[i, 1] == DisplayShape[1] - DinoShape[i, 1]: # Jump
         Velocity[i] = - 10
@@ -106,27 +110,32 @@ for Generation in range(20):
       Dino[i, 1] = min(DisplayShape[1] - DinoShape[i, 1], max(0, Dino[i, 1]))
 
       # Display Dino
-      if DinoShape[i, :].all() == DinoWalkShape.all():
-        Display.blit(DinoWalk, (Dino[i, 0], Dino[i, 1]))
-      else:
-        Display.blit(DinoDuck, (Dino[i, 0], Dino[i, 1]))
+      if Alive[i] == True:
+        if DinoShape[i, :].all() == DinoWalkShape.all():
+          Display.blit(DinoWalk, (Dino[i, 0], Dino[i, 1]))
+        else:
+          Display.blit(DinoDuck, (Dino[i, 0], Dino[i, 1]))
 
       # Game Over Check
       for j in range(len(Object[0])):
         if Dino[i, 0] < Object[0, j] + ObjectShape[0] and Dino[i, 0] + DinoShape[i, 0] > Object[0, j] and Dino[i, 1] < Object[1, j] + ObjectShape[1] and Dino[i, 1] + DinoShape[i, 1] > Object[1, j]:
-          Alive = False
-          HighScore = max(HighScore, Score.all())
-      if Dino[i, 1] == 0:
-        Alive = False
-        HighScore = max(HighScore, Score.all())
+          Alive[i] = False
 
     pygame.display.update()
 
   # Mutate
+  HighScore = max(np.max(Score), HighScore)
+
+  for i in range(PopulationSize):
+    if Score[i] == HighScore:
+      InToHid1.Mutate(i)
+      Hid1ToOut.Mutate(i)
+      i = PopulationSize - 1
 
   # Reset
   Score = np.array([0] * PopulationSize)
   Alive = np.array([True] * PopulationSize, dtype=bool)
+  Velocity = np.array([0] * PopulationSize)
 
   Object[0, 0] += 400
   Object[0, 1] += 400
