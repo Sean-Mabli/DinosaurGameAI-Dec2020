@@ -8,10 +8,10 @@ pygame.display.set_caption('Dinosaur Game')
 ScreenShape = (960, 540)
 Display = pygame.display.set_mode([ScreenShape[0], ScreenShape[1]])
 
-Bird = pygame.image.load('DinoGame\Python(Human)\data\Bird002.png')
-Cactus = pygame.image.load('DinoGame\Python(Human)\data\Cactus001.png')
-DinoDuck = pygame.image.load('DinoGame\Python(Human)\data\DinoDuck004.png')
-DinoWalk = pygame.image.load('DinoGame\Python(Human)\data\DinoWalk002.png')
+Bird = pygame.image.load('DinoGame\Python_Human\data\Bird002.png')
+Cactus = pygame.image.load('DinoGame\Python_Human\data\Cactus001.png')
+DinoDuck = pygame.image.load('DinoGame\Python_Human\data\DinoDuck004.png')
+DinoWalk = pygame.image.load('DinoGame\Python_Human\data\DinoWalk002.png')
 
 Alive = True
 HighScore = 0
