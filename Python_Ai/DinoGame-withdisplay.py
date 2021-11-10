@@ -1,11 +1,11 @@
 import pygame
 import numpy as np
-from NEAT import NEAT
+import aiinpy as ai
 
 PopulationSize = 1000
 
-InToHid1 = NEAT(4, 6, MutationRate=0.1, PopulationSize=PopulationSize)
-Hid1ToOut = NEAT(6, 3, MutationRate=0.1, PopulationSize=PopulationSize)
+InToHid1 = ai.neuroevolution(4, 6, MutationRate=0.1, PopulationSize=PopulationSize, Activation='Identity')
+Hid1ToOut = ai.neuroevolution(6, 3, MutationRate=0.1, PopulationSize=PopulationSize, Activation='Identity')
 
 pygame.init()
 pygame.display.set_caption('Dinosaur Game')
@@ -100,8 +100,8 @@ for Generation in range(100):
     # Dino
     In = np.array([(Object[0, 0] - (20 + DinoDuckShape[0])) / 1400, 0 if ObjectType[0] == 'Cactus' else 1, (Object[0, 1] - (20 + DinoWalkShape[0])) / 1400, 0 if ObjectType[1] == 'Cactus' else 1])
     In = np.array([In] * PopulationSize)
-    Hid1 = InToHid1.ForwardProp(In)
-    Out = Hid1ToOut.ForwardProp(Hid1)
+    Hid1 = InToHid1.forwardprop(In)
+    Out = Hid1ToOut.forwardprop(Hid1)
 
     for i in range(PopulationSize):
       if Out[i, 1] > Out[i, 0] and Out[i, 1] > Out[i, 2] and Dino[i, 1] == DisplayShape[1] - DinoShape[i, 1]: # Jump

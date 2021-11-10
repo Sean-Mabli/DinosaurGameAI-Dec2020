@@ -16,11 +16,8 @@ HighScore = 0
 Gravity = 0.5
 Speed = 8 # Pixels per loop
 
-Road = np.stack((np.random.randint(0, DisplayShape[0], 100), np.random.randint(DisplayShape[1] - 20, DisplayShape[0], 100)))
-
 ObjectShape = (73, 47)
 Object = np.array([[400, 800, 1200], [DisplayShape[1] - ObjectShape[1] - np.random.randint(0, 20), DisplayShape[1] - ObjectShape[1] - np.random.randint(0, 20), DisplayShape[1] - ObjectShape[1] - np.random.randint(0, 20)]])
-ObjectType = np.array(['Cactus', 'Cactus', 'Cactus'])
 
 DinoWalkShape = np.array([40, 43])
 DinoDuckShape = np.array([55, 26])
@@ -36,23 +33,22 @@ for Generation in range(100):
       for i in range (PopulationSize):
         if Alive[i]:
           Score[i] += 1
-          HighScore = max(HighScore, Score[i])
+          if HighScore > Score[i]:
+            HighScore = Score[i]
+            print("Generation:", Generation, "New High Score:", HighScore)
         
-      Object[:, 0], ObjectType[0] = Object[:, 1], ObjectType[1]
-      Object[:, 1], ObjectType[1] = Object[:, 2], ObjectType[2]
+      Object[:, 0 : 1] = Object[:, 1 : 2]
       
       Object[0, 2] = np.random.randint(1000, 1400)
       while abs(Object[0, 0] - Object[0, 1]) < 400 or abs(Object[0, 1] - Object[0, 2]) < 400 or abs(Object[0, 0] - Object[0, 2]) < 400:
         Object[0, 2] = np.random.randint(1000, 1400)
       if np.random.random_sample() <= 0.25:
         Object[1, 2] = DisplayShape[1] - (ObjectShape[1] + DinoWalkShape[1]) + np.random.randint(0, 10)
-        ObjectType[2] = 'Bird'
       else:
         Object[1, 2] = DisplayShape[1] - ObjectShape[1] - np.random.randint(0, 20)
-        ObjectType[2] = 'Cactus'
 
     # Dino
-    In = np.array([(Object[0, 0] - (20 + DinoDuckShape[0])) / 1400, 0 if ObjectType[0] == 'Cactus' else 1, (Object[0, 1] - (20 + DinoWalkShape[0])) / 1400, 0 if ObjectType[1] == 'Cactus' else 1])
+    In = np.array([(Object[0, 0] - (20 + DinoDuckShape[0])) / 1400, 0 if Object[1, 0] < 485 else 1, (Object[0, 1] - (20 + DinoWalkShape[0])) / 1400, 0 if Object[1, 1] < 485 else 1])
     In = np.array([In] * PopulationSize)
     Hid1 = InToHid1.forwardprop(In)
     Out = Hid1ToOut.forwardprop(Hid1)
@@ -94,5 +90,3 @@ for Generation in range(100):
   
   DinoShape = np.array([DinoWalkShape] * PopulationSize)
   Dino = np.array([np.array([20, DisplayShape[1] - DinoWalkShape[1]])] * PopulationSize)
-
-  print(HighScore)

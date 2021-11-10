@@ -110,9 +110,7 @@ for _ in range(20):
   Score = 0
   Alive = True
 
-  Object[0, 0] += 1000
-  Object[0, 1] += 1000
-  Object[0, 2] += 1000
+  Object[0, :] += 1000
 
   DinoShape = (40, 43)
   Dino = np.array([20, ScreenShape[1] - DinoShape[1]])
